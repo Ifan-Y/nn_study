@@ -61,8 +61,8 @@ def load_data():
     test_data_size = len(dataset_test)
     # print(f"number_2={test_data_size}")
 
-    dataloader_train = DataLoader(dataset_train, batch_size=32, shuffle=True, num_workers=0, drop_last=True)
-    dataloader_test = DataLoader(dataset_test, batch_size=32, shuffle=True, num_workers=0, drop_last=True)
+    dataloader_train = DataLoader(dataset_train, batch_size=64, shuffle=True, num_workers=0, drop_last=True)
+    dataloader_test = DataLoader(dataset_test, batch_size=64, shuffle=True, num_workers=0, drop_last=True)
 
     return dataloader_train, dataloader_test
 
@@ -70,39 +70,54 @@ def load_data():
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        # self.network_1st = nn.Sequential(
-        #     nn.Conv2d(1, 6, kernel_size=5, padding=2),
-        #     nn.MaxPool2d(2),
-        #     nn.ReLU(),
-        #     nn.Conv2d(6, 16, kernel_size=5),
-        #     nn.MaxPool2d(2),
-        #     nn.ReLU(),
-        #     nn.Conv2d(16, 120, kernel_size=5),
-        #     nn.ReLU(),
-        # )
-        # self.network_2nd = nn.Sequential(
-        #     nn.Linear(120, 84),
-        #     nn.ReLU(),
-        #     nn.Linear(84, 10),
-        #     nn.LogSoftmax(),
-        # )
-        self.network_nn = nn.Sequential(
-            nn.Linear(64*64, 1024),
+        self.network_1st = nn.Sequential(
+            nn.Conv2d(1, 6, kernel_size=5, padding=2),
+            nn.MaxPool2d(2),
             nn.ReLU(),
-            nn.Linear(1024, 256),
+            nn.Conv2d(6, 16, kernel_size=5),
+            nn.MaxPool2d(2),
             nn.ReLU(),
-            nn.Linear(256, 64),
+            nn.Conv2d(16, 120, kernel_size=5),
             nn.ReLU(),
-            nn.Linear(64, 15),
         )
+        self.network_2nd = nn.Sequential(
+            nn.Linear(12000, 3000),
+            nn.ReLU(),
+            nn.Linear(3000, 750),
+            nn.ReLU(),
+            nn.Linear(750, 188),
+            nn.ReLU(),
+            nn.Linear(188, 15),
+            nn.LogSoftmax(),
+        )
+        # self.network_nn = nn.Sequential(
+        #     nn.Linear(64*64, 1024),
+        #     nn.ReLU(),
+        #     nn.Linear(1024, 256),
+        #     nn.ReLU(),
+        #     nn.Linear(256, 64),
+        #     nn.ReLU(),
+        #     nn.Linear(64, 15),
+        # )
 
+        # self.network_nn = nn.Sequential(
+        #     nn.Conv2d(
+        #         in_channels=1,
+        #         out_channels=6,
+        #         kernel_size=5,
+        #         stride=1,
+        #         padding=2
+        #     ),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2),
+        # )
     def forward(self, x):
         in_size = x.size(0)
-        # out = self.network_1st(x)
-        # out = out.view(in_size, -1)
-        # out = self.network_2nd(out)
+        out = self.network_1st(x)
+        out = out.view(in_size, -1)
+        out = self.network_2nd(out)
         x = torch.flatten(x, 1)
-        out = self.network_nn(x)
+        # out = self.network_nn(x)
         return out
 
 
